@@ -1,40 +1,72 @@
 ymaps.ready(init);
 
 function init() {
-	var userCoodinates;
-    var geolocation = ymaps.geolocation,
-        myMap = new ymaps.Map('map', {
+    var myMap = new ymaps.Map("map", {
             center: [42.316086,69.666779],
             zoom: 12,
-			controls: ['geolocationControl']
+			controls: []
         });
-
-    geolocation.get({
-        provider: 'browser',
-        mapStateAutoApply: true
-    }).then(function (result) {
-        // Синим цветом пометим положение, полученное через браузер.
-        // Если браузер не поддерживает эту функциональность, метка не будет добавлена на карту.
-        result.geoObjects.options.set('preset', 'islands#blueCircleIcon');
-        myMap.geoObjects.add(result.geoObjects);
-		userCoodinates = result.geoObjects.get(0).geometry.getCoordinates();
-		alert(userCoodinates);
-		
+myMap.controls.add('zoomControl');
+myMap.controls.add('geolocationControl', {
+    scaleLine: false
 });
-
-var multiRoute = new ymaps.multiRouter.MultiRoute({   
-        // Точки маршрута.
-        // Обязательное поле. 
-        referencePoints: [
-            ['userCoodinates'],
-            [55.734876, 37.59308], // улица Льва Толстого.
-        ]
-    }, {
-      // Автоматически устанавливать границы карты так,
-      // чтобы маршрут был виден целиком.
-      boundsAutoApply: true
-});
+    myMap.geoObjects
+        .add(new ymaps.Placemark([42.36476, 69.494534], {
+            balloonContent: 'АЭРОПОРТ ШЫМКЕНТ АО'
+        }, {
+            preset: 'islands#dotIcon',
+            iconColor: '#735184'
+        }))
+		        .add(new ymaps.Placemark([42.356035, 69.734744], {
+            balloonContent: 'Цемент завод'
+        }, {
+            preset: 'islands#dotIcon',
+            iconColor: '#735184'
+        }))
 		
+		        .add(new ymaps.Placemark([42.368374, 69.621478], {
+            balloonContent: 'Дендропарк'
+        }, {
+            preset: 'islands#dotIcon',
+            iconColor: '#735184'
+        }))		;
+		
+		
+		 result.textContent = '';
 
+  // куда скакать
+  function clickGoto() {
+myMap.geoObjects.removeAll();
+    // город
+    var city = this.getAttribute('data-goto'); 
+	var title = this.getAttribute('data-title');// или this.getAttribute('title')
+    result.textContent = title;
+    var myGeocoder = ymaps.geocode(city);
+
+    myGeocoder.then(
+      function(res) {
+        coords = res.geoObjects.get(0).geometry.getCoordinates();
+        // переходим по координатам
+        myMap.panTo(coords, {
+          flying: 1
+        });
+        // добавляем маркер
+        var placeMark = new ymaps.Placemark(coords, {
+          balloonContent: title
+        });
+        myMap.geoObjects.add(placeMark);
+      },
+      function(err) {
+        alert('Ошибка');
+      }
+    );
+    return false;
+  }
+
+  // навешиваем обработчики
+  var col = document.getElementsByClassName('goto');
+  for (var i = 0, n = col.length; i < n; ++i) {
+    col[i].onclick = clickGoto;
+  }
 
 }
