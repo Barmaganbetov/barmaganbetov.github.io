@@ -4,7 +4,7 @@ var myMap = new ymaps.Map('map', {
     center: [42.36, 69.49],
     zoom: 14,
         // Добавим кнопку для построения маршрутов на карту.
-        controls: ['routeButtonControl', 'geolocationControl']
+        controls: ['routeButtonControl', 'geolocationControl', 'zoomControl']
     });
     var control = myMap.controls.get('routeButtonControl');
 
